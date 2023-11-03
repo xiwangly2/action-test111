@@ -2,11 +2,6 @@ name: Encrypt Contributor Info
 
 on:
   push:
-    branches:
-      - main
-    # 仅在非 github-actions[bot] 用户的推送时触发
-    paths-ignore:
-      - '**/.github/workflows/**'
 
 jobs:
   encrypt-contributor-info:
