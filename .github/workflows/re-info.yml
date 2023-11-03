@@ -12,6 +12,11 @@ jobs:
     - name: Check out code
       uses: actions/checkout@v2
 
+    - name: Set up Git
+      run: |
+        git config user.name "GitHub Actions"
+        git config user.email "actions@users.noreply.github.com"
+
     - name: Generate random string
       id: random-string
       run: echo "::set-output name=random_string::$(openssl rand -hex 10)"
@@ -20,12 +25,19 @@ jobs:
       run: |
         RANDOM_STRING=${{ steps.random-string.outputs.random_string }}
         git filter-branch --env-filter "
-          export GIT_COMMITTER_NAME='Anonymous'
-          export GIT_COMMITTER_EMAIL='${RANDOM_STRING}@example.com'
-          export GIT_AUTHOR_NAME='Anonymous'
-          export GIT_AUTHOR_EMAIL='${RANDOM_STRING}@example.com'
+          if [ \"\$GIT_COMMITTER_EMAIL\" = \"\$OLD_EMAIL\" ]
+          then
+              export GIT_COMMITTER_NAME='Anonymous'
+              export GIT_COMMITTER_EMAIL='${RANDOM_STRING}@example.com'
+          fi
+          if [ \"\$GIT_AUTHOR_EMAIL\" = \"\$OLD_EMAIL\" ]
+          then
+              export GIT_AUTHOR_NAME='Anonymous'
+              export GIT_AUTHOR_EMAIL='${RANDOM_STRING}@example.com'
+          fi
         " --tag-name-filter cat -- --branches --tags
-
+        
+        # 使用GitHub Actions的bot身份推送修改后的提交历史
         git push --force --tags origin 'refs/heads/*'
       env:
         RANDOM_STRING: ${{ steps.random-string.outputs.random_string }}
