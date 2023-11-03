@@ -12,32 +12,23 @@ jobs:
     - name: Check out code
       uses: actions/checkout@v2
 
-    - name: Set up Git
-      run: |
-        git config user.name "GitHub Actions"
-        git config user.email "actions@users.noreply.github.com"
-
-    - name: Generate random string
-      id: random-string
-      run: echo "::set-output name=random_string::$(openssl rand -hex 10)"
-
     - name: Encrypt commit data
       run: |
-        RANDOM_STRING=${{ steps.random-string.outputs.random_string }}
+        RANDOM_STRING=$(openssl rand -hex 10)
         git filter-branch --env-filter "
-          if [ \"\$GIT_COMMITTER_EMAIL\" = \"\$OLD_EMAIL\" ]
+          if [ \"\$GIT_COMMITTER_EMAIL\" != \"xxx@nobody.com\" ]
           then
               export GIT_COMMITTER_NAME='Anonymous'
-              export GIT_COMMITTER_EMAIL='${RANDOM_STRING}@example.com'
+              export GIT_COMMITTER_EMAIL='${RANDOM_STRING}@nobody.com'
           fi
-          if [ \"\$GIT_AUTHOR_EMAIL\" = \"\$OLD_EMAIL\" ]
+          if [ \"\$GIT_AUTHOR_EMAIL\" != \"xxx@nobody.com\" ]
           then
               export GIT_AUTHOR_NAME='Anonymous'
-              export GIT_AUTHOR_EMAIL='${RANDOM_STRING}@example.com'
+              export GIT_AUTHOR_EMAIL='${RANDOM_STRING}@nobody.com'
           fi
         " --tag-name-filter cat -- --branches --tags
-        
-        # 使用GitHub Actions的bot身份推送修改后的提交历史
+
+        # 使用GitHub Actions的SSH密钥进行推送
         git push --force --tags origin 'refs/heads/*'
       env:
-        RANDOM_STRING: ${{ steps.random-string.outputs.random_string }}
+        GIT_SSH_COMMAND: ${{ secrets.GIT_SSH_COMMAND }}
