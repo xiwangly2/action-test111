@@ -34,7 +34,7 @@ jobs:
 
     - name: Git history rewrite
       run: |
-        git filter-repo --email-callback '
+        git filter-repo --force --email-callback '
           if email in ENV["ORIGINAL_EMAILS"].split(","):
               return (ENV["GITHUB_ACTOR"] + "@nobody.com", "Name")
           return (email, "Name")
