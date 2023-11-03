@@ -23,9 +23,6 @@ jobs:
         sudo apt-get update
         sudo apt-get install -y git-filter-repo
 
-    - name: Install dependencies
-      run: npm install crypto
-
     - name: Get original email addresses
       id: get-original-email
       run: |
@@ -34,11 +31,19 @@ jobs:
 
     - name: Git history rewrite
       run: |
-        git filter-repo --force --email-callback '
-          if email in ENV["ORIGINAL_EMAILS"].split(","):
-              return (ENV["GITHUB_ACTOR"] + "@nobody.com", "Name")
-          return (email, "Name")
-        '
+        git filter-repo --force --email-callback 'email=githubactornobody@example.com name=Name' -- \
+          --env-filter '
+            if [ "$GIT_COMMITTER_EMAIL" = "$email" ]
+            then
+                export GIT_COMMITTER_NAME="Name"
+                export GIT_COMMITTER_EMAIL="$email"
+            fi
+            if [ "$GIT_AUTHOR_EMAIL" = "$email" ]
+            then
+                export GIT_AUTHOR_NAME="Name"
+                export GIT_AUTHOR_EMAIL="$email"
+            fi
+          '
 
     - name: Push changes
       run: |
