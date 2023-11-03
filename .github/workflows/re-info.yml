@@ -1,0 +1,32 @@
+name: Encrypt Contributor Info
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  encrypt-contributor-info:
+    runs-on: ubuntu-latest
+    if: github.actor != 'github-actions[bot]'
+    steps:
+    - name: Check out code
+      uses: actions/checkout@v2
+
+    - name: Install Node.js
+      uses: actions/setup-node@v2
+      with:
+        node-version: 14
+
+    - name: Install dependencies
+      run: npm install crypto
+
+    - name: Encrypt contributor info
+      run: |
+        node -e "const crypto = require('crypto');
+        const contributors = process.env.GITHUB_ACTOR + '|' + process.env.GITHUB_ACTOR_EMAIL;
+        const encryptedInfo = crypto.createHash('sha256').update(contributors).digest('hex');
+        console.log('Encrypted contributor info: ' + encryptedInfo);"  
+      env:
+        GITHUB_ACTOR: ${{ github.actor }}
+        GITHUB_ACTOR_EMAIL: ${{ github.event.head_commit.author.email }}
