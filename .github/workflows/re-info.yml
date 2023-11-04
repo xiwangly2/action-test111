@@ -9,9 +9,11 @@ jobs:
   encrypt-commits:
     runs-on: ubuntu-latest
     steps:
-    - name: Check out code
+    - name: Check out code using SSH
       uses: actions/checkout@v2
-
+      with:
+        ssh-key: ${{ secrets.SSH_PRIVATE_KEY }}
+        
     - name: Encrypt commit data
       run: |
         RANDOM_STRING=$(openssl rand -hex 10)
@@ -28,7 +30,5 @@ jobs:
           fi
         " --tag-name-filter cat -- --branches --tags
 
-        # 使用GitHub Actions的SSH密钥进行推送
+        # 使用SSH密钥进行推送
         git push --force --tags origin 'refs/heads/*'
-      env:
-        GIT_SSH_COMMAND: ${{ secrets.GIT_SSH_COMMAND }}
