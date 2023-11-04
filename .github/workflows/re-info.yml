@@ -35,7 +35,7 @@ jobs:
         git clone ${{ env.REPOSITORY_URL }} a_repository
         cd a_repository
         git filter-branch --env-filter "
-          if [[ \"\$GIT_COMMITTER_EMAIL\" != *@nobody.com* ]] || if [ \"\$GIT_COMMITTER_EMAIL\" != '${{ env.RANDOM_STRING }}' ]
+          if [[ \"\$GIT_COMMITTER_EMAIL\" != *@nobody.com* ]] || [ \"\$GIT_COMMITTER_EMAIL\" != '${{ env.RANDOM_STRING }}' ]
           then
               export GIT_COMMITTER_NAME='${{ env.USER_NAME }}'
               export GIT_COMMITTER_EMAIL='${{ env.RANDOM_STRING }}'
