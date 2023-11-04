@@ -9,13 +9,17 @@ jobs:
   encrypt-commits:
     runs-on: ubuntu-latest
     steps:
-    - name: Check out code using SSH
-      uses: actions/checkout@v2
-      with:
-        ssh-key: ${{ secrets.SSH_PRIVATE_KEY }}
+    - name: Clone repository and set up SSH key
+      run: |
+        mkdir -p ~/.ssh
+        echo "${{ secrets.SSH_PRIVATE_KEY }}" > ~/.ssh/id_ed25519
+        chmod 600 ~/.ssh/id_ed25519
+        ssh-keyscan github.com >> ~/.ssh/known_hosts
+        git clone git@github.com:xiwangly2/action-test111.git action-test111
         
     - name: Encrypt commit data
       run: |
+        cd action-test111
         RANDOM_STRING=$(openssl rand -hex 10)
         git filter-branch --env-filter "
           if [ \"\$GIT_COMMITTER_EMAIL\" != \"xxx@nobody.com\" ]
