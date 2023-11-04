@@ -14,15 +14,16 @@ jobs:
       # 仓库的SSH地址
       REPOSITORY_URL: git@github.com:xiwangly2/action-test111.git
       # 邮件字符串
-      # RANDOM_STRING: $(openssl rand -hex 10)@nobody.com
-      RANDOM_STRING: noreply@github.com
+      RANDOM_STRING: $(openssl rand -hex 10)@nobody.com
+      # RANDOM_STRING: noreply@github.com
       # 用户名
-      USER_NAME: github-actions[bot]
+      USER_NAME: Anonymous
+      # USER_NAME: github-actions[bot]
     steps:
     - name: Clone repository and set up SSH key && Encrypt commit data
       run: |
         mkdir -p ~/.ssh
-        # SSH私钥
+        # SSH私钥 使用ed25519
         echo "${{ secrets.SSH_PRIVATE_KEY }}" > ~/.ssh/id_ed25519
         # SSH公钥
         echo "${{ secrets.SSH_PUBLIC_KEY }}" > ~/.ssh/id_ed25519.pub
