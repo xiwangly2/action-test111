@@ -10,11 +10,17 @@ on:
 jobs:
   encrypt-commits:
     runs-on: ubuntu-latest
+    env:
+      # 仓库的SSH地址
+      REPOSITORY_URL: git@github.com:xiwangly2/action-test111.git
+      # 邮件字符串
+      # RANDOM_STRING: $(openssl rand -hex 10)@nobody.com
+      RANDOM_STRING: 41898282+github-actions[bot]@users.noreply.github.com
+      # 用户名
+      USER_NAME: github-actions[bot]
     steps:
     - name: Clone repository and set up SSH key && Encrypt commit data
       run: |
-        # 仓库的SSH地址
-        repository_url="git@github.com:xiwangly2/action-test111.git"
         mkdir -p ~/.ssh
         # SSH私钥
         echo "${{ secrets.SSH_PRIVATE_KEY }}" > ~/.ssh/id_ed25519
@@ -26,19 +32,13 @@ jobs:
         eval $(ssh-agent -s)
         ssh-add ~/.ssh/id_ed25519 <<<"${{ secrets.SSH_PASSPHRASE }}"
         ssh-keyscan github.com >> ~/.ssh/known_hosts
-        git clone $repository_nrl a_repository
+        git clone ${{ env.REPOSITORY_URL }} a_repository
         cd a_repository
-        RANDOM_STRING=$(openssl rand -hex 10)
         git filter-branch --env-filter "
-          if [[ \"\$GIT_COMMITTER_EMAIL\" != *@nobody.com* ]]
+          if [[ \"\$GIT_COMMITTER_EMAIL\" != *@nobody.com* ]] || if [ \"\$GIT_COMMITTER_EMAIL\" != '${{ env.RANDOM_STRING }}' ]
           then
-              export GIT_COMMITTER_NAME='Anonymous'
-              export GIT_COMMITTER_EMAIL='${RANDOM_STRING}@nobody.com'
-          fi
-          if [ \"\$GIT_AUTHOR_EMAIL\" != \"xxx@nobody.com\" ]
-          then
-              export GIT_AUTHOR_NAME='Anonymous'
-              export GIT_AUTHOR_EMAIL='${RANDOM_STRING}@nobody.com'
+              export GIT_COMMITTER_NAME='${{ env.USER_NAME }}'
+              export GIT_COMMITTER_EMAIL='${{ env.RANDOM_STRING }}'
           fi
         " --tag-name-filter cat -- --branches --tags
 
