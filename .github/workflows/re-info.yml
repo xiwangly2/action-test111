@@ -1,9 +1,11 @@
 name: Encrypt Commit Data
 
 on:
-  push:
-    branches:
-      - '*'
+  # 死循环了
+  # push:
+  #   branches:
+  #     - '*'
+  workflow_dispatch:
 
 jobs:
   encrypt-commits:
@@ -11,8 +13,12 @@ jobs:
     steps:
     - name: Clone repository and set up SSH key && Encrypt commit data
       run: |
+        # 仓库的SSH地址
+        repository_url="git@github.com:xiwangly2/action-test111.git"
         mkdir -p ~/.ssh
+        # SSH私钥
         echo "${{ secrets.SSH_PRIVATE_KEY }}" > ~/.ssh/id_ed25519
+        # SSH公钥
         echo "${{ secrets.SSH_PUBLIC_KEY }}" > ~/.ssh/id_ed25519.pub
         chmod 600 ~/.ssh/id_ed25519
         chmod 600 ~/.ssh/id_ed25519.pub
@@ -20,11 +26,11 @@ jobs:
         eval $(ssh-agent -s)
         ssh-add ~/.ssh/id_ed25519 <<<"${{ secrets.SSH_PASSPHRASE }}"
         ssh-keyscan github.com >> ~/.ssh/known_hosts
-        git clone git@github.com:xiwangly2/action-test111.git action-test111
-        cd action-test111
+        git clone $repository_nrl a_repository
+        cd a_repository
         RANDOM_STRING=$(openssl rand -hex 10)
         git filter-branch --env-filter "
-          if [ \"\$GIT_COMMITTER_EMAIL\" != \"xxx@nobody.com\" ]
+          if [[ \"\$GIT_COMMITTER_EMAIL\" != *@nobody.com* ]]
           then
               export GIT_COMMITTER_NAME='Anonymous'
               export GIT_COMMITTER_EMAIL='${RANDOM_STRING}@nobody.com'
