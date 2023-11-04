@@ -15,7 +15,7 @@ jobs:
       REPOSITORY_URL: git@github.com:xiwangly2/action-test111.git
       # 邮件字符串
       # RANDOM_STRING: $(openssl rand -hex 10)@nobody.com
-      RANDOM_STRING: 41898282+github-actions[bot]@users.noreply.github.com
+      RANDOM_STRING: noreply@github.com
       # 用户名
       USER_NAME: github-actions[bot]
     steps:
